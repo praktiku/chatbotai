@@ -131,40 +131,50 @@ class Chatbox {
     /** Function Untuk Speech */
     speechOnListening(){
         /** Import Class Dari WebkitSpeechRecognition */
+
         const recognition = new webkitSpeechRecognition();
         recognition.continuous = false;
         recognition.lang = 'id';
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
         if(this.onSpeech){
-            recognition.start();
-            this.synthOnProgress(recognition) 
+            // recognition.start();
+            console.log('SpeechOnListening')
+            this.recOnProgress(recognition) 
         }else{
             recognition.stop();
         }
         
     }
     /** Function Suara Buatan */
-    synthOnProgress(recognition){
+    synthOnProgress(speechMsg, recognition){
          /** Suara Buatan */
+         console.log('synthOnProgress')
          const synth = window.speechSynthesis;
          let utter = new SpeechSynthesisUtterance();
          utter.onend = () => {
             recognition.stop();
-            console.log("start rec")
-            }
-         recognition.onresult = (event) => {
+            console.log("utter onend")
+        }
+        utter.text = speechMsg
+        synth.speak(utter)
+        
+    }
+    /**Function get Speech */
+    recOnProgress(recognition){
+        console.log('recOnProgress')
+        recognition.onresult = (event) => {
             recognition.stop()
             const resSpeech = event.results[event.results.length - 1][0].transcript.trim();
-            utter.text = "hi"
-            synth.speak(utter)
-            
+            console.log('Speech Request')
+            this.getResponseFromBot(resSpeech, recognition)
             console.log(resSpeech);
         }
     }
     /** Function Untuk Response ChatBot */
-    getResponseFromBot(speechVoice){
+    getResponseFromBot(speechVoice, recognition){
         let text1 = speechVoice
+        let chatbox = document.querySelector('.chatbox__support')
         if (text1 === "") {
             return;
         }
@@ -185,6 +195,7 @@ class Chatbox {
             let msg2 = { name: "Sam", message: r.answer };
             this.messages.push(msg2);
             this.updateChatText(chatbox)
+            this.synthOnProgress(r.answer, recognition) // 
             textField.value = ''
 
         }).catch((error) => {
