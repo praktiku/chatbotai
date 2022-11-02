@@ -140,6 +140,7 @@ class Chatbox {
         if(this.onSpeech){
             // recognition.start();
             console.log('SpeechOnListening')
+            /** Class Recognition */
             this.recOnProgress(recognition) 
         }else{
             recognition.stop();
@@ -152,22 +153,33 @@ class Chatbox {
          console.log('synthOnProgress')
          const synth = window.speechSynthesis;
          let utter = new SpeechSynthesisUtterance();
+         utter.lang = 'id-ID'
          utter.onend = () => {
             recognition.stop();
             console.log("utter onend")
         }
-        utter.text = speechMsg
-        synth.speak(utter)
+        setTimeout(() => {
+            utter.text = speechMsg
+            synth.speak(utter)
+        }, 500);
         
     }
     /**Function get Speech */
     recOnProgress(recognition){
+        /**  */
+        const buttonSpeech = document.querySelector('.speech__button')
         console.log('recOnProgress')
+        recognition.start()
+        /** Ambil Hasil Suara Yang Telah Di Rekam */
         recognition.onresult = (event) => {
+            
+            buttonSpeech.innerHTML = 'Start Speech'
             recognition.stop()
             const resSpeech = event.results[event.results.length - 1][0].transcript.trim();
             console.log('Speech Request')
+            /** Msg yang telah direkam dan recognition */
             this.getResponseFromBot(resSpeech, recognition)
+            
             console.log(resSpeech);
         }
     }
@@ -195,13 +207,13 @@ class Chatbox {
             let msg2 = { name: "Sam", message: r.answer };
             this.messages.push(msg2);
             this.updateChatText(chatbox)
+            /**Message, Class Recognition */
             this.synthOnProgress(r.answer, recognition) // 
-            textField.value = ''
 
         }).catch((error) => {
             console.error('Error:', error);
             this.updateChatText(chatbox)
-            textField.value = ''
+            
           });
     }
 
